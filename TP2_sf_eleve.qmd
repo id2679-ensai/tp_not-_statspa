@@ -56,6 +56,9 @@ nocite: "@*"
 Charger ensuite les package sf et dplyr.
 
 ```{r, message = FALSE, warning = FALSE}
+library(sf)
+library(dplyr)  
+
 ```
 
 
@@ -63,6 +66,7 @@ Charger ensuite les package sf et dplyr.
 
 
 ```{r}
+communes <- st_read("commune_francemetro_2021.gpkg")
 ```
 
 2. Faites un résumé/descriptif du contenu de l'objet importé, comme vous le feriez pour un dataframe.
