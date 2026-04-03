@@ -71,21 +71,38 @@ Vous utiliserez le **fond des communes de France metropolitaine (fonds/commune_f
 
 
 1. Commencez par vous créer votre jeu de données (jointure et création de variable). Attention avant de joindre vos données, il vous faudra d'abord homogénéiser la commune de Paris. Dans un fichier (`fond communal`), Paris est renseigné sous son code communal (75056). Dans l'autre, Paris est renseigné par arrondissement (75101 à 75120). Vous devrez donc **regrouper les arrondissements pour avoir une seule ligne pour Paris**. Cette ligne sera renseignée avec le `CODGEO` 75056.
-
+rm(list = ls())
 ```{r}
+
+
+communes_fm <- st_read("data_fonds_carte_TP3/fonds/commune_francemetro_2021.gpkg")
+pop_com_2019 <- openxlsx::read.xlsx("data_fonds_carte_TP3/data/Pop_legales_2019.xlsx")
+
+pop_com_2019 <- pop_com_2019 %>%
+mutate(COM = if_else(substr(COM,1,3) == "751","75056",COM)) %>%
+group_by(code = COM) %>%
+summarise(pop = sum(PMUN19))
+
+# Jointure
+communes_fm <- communes_fm %>%
+left_join(pop_com_2019,
+by="code") %>%
+mutate(densite=pop/surf)
 
 ```
 
 2. Regarder rapidement la distribution de la variable de densité.
 
 ```{r}
-
+summary(communes_fm$densite)
+hist(communes_fm$densite)
 ```
 
 3. On souhaite représenter la variable de densité sous forme d'une carte choroplèthe. Faire cela en utilisant la fonction `plot()`. La variable de densité sera selectionnée par les crochets sur le modèle suivant : `ma_table["ma_variable_continue"]`. Ajouter également l'argument `border=FALSE` pour supprimer les bordures des polygônes.
 
 ```{r}
-
+plot(communes_fm$densite)
+plot(communes_fm["densite"], border=FALSE)
 ```
 
 4. On se rend compte que la carte est peu informative et qu'il vaut mieux discrétiser notre variable. Représenter le résultat de la discrétisation de la densité de population selon les méthodes des quantiles, jenks et des écarts-types, ainsi que la méthode `pretty`. 
